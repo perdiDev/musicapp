@@ -24,7 +24,7 @@ class AlbumService {
     return result.rows[0].id;
   }
 
-  async getAlbumsById(id) {
+  async getAlbumById(id) {
     const query = {
       text: 'SELECT * FROM albums WHERE id=$1',
       values: [id],
@@ -38,19 +38,19 @@ class AlbumService {
     return result.rows[0];
   }
 
-  async editAlbumById(id, { title, year }) {
+  async editAlbumById(id, { name, year }) {
     const query = {
-      text: 'UPDATE title=$1 year=$2 FROM albums WHERE id=$3',
-      values: [title, year, id],
+      text: 'UPDATE albums SET name=$1, year=$2 WHERE id=$3 RETURNING id',
+      values: [name, year, id],
     };
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new Error('Gagal memperbarui albums. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui albums. Id tidak ditemukan');
     }
   }
 
-  async deleteNoteById(id) {
+  async deleteAlbumById(id) {
     const query = {
       text: 'DELETE FROM albums WHERE id=$1 RETURNING id',
       values: [id],
@@ -58,7 +58,7 @@ class AlbumService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new Error('Album gagal dihapus. Id tidak ditemukan');
+      throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
   }
 }

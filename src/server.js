@@ -31,13 +31,14 @@ const init = async () => {
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
+
     if (response instanceof Error) {
       if (response instanceof ClientError) {
         const newResponse = h.response({
           status: 'fail',
           message: response.message,
         });
-        newResponse.statusCode(response.statusCode);
+        newResponse.code(response.statusCode);
         return newResponse;
       }
 
@@ -49,7 +50,7 @@ const init = async () => {
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
       });
-      newResponse.statusCode(500);
+      newResponse.code(500);
       return newResponse;
     }
 
