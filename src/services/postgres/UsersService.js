@@ -1,8 +1,8 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
-const InvariantError = require('../../../temp/src/exceptions/InvariantError');
-const NotFoundError = require('../../../temp/src/exceptions/NotFoundError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class UsersService {
   constructor() {
@@ -30,7 +30,7 @@ class UsersService {
 
   async getUserById(userId) {
     const query = {
-      text: 'SELECT FROM users WHERE id=$1',
+      text: 'SELECT id, username, fullname FROM users WHERE id=$1',
       values: [userId],
     };
     const result = await this._pool.query(query);
@@ -43,7 +43,7 @@ class UsersService {
 
   async verifyUsername(username) {
     const query = {
-      text: 'SELECT * FROM users WHERE username=$1',
+      text: 'SELECT username FROM users WHERE username=$1',
       values: [username],
     };
 
