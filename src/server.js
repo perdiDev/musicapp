@@ -35,7 +35,7 @@ const init = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const playlistsService = new PlaylistsService();
+  const playlistsService = new PlaylistsService(songsService);
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -131,6 +131,7 @@ const init = async () => {
         message: 'terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
+      console.log(response.message);
       return newResponse;
     }
 
