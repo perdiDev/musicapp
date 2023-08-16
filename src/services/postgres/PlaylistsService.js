@@ -5,9 +5,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor(songsService) {
+  constructor(songsService, collaborationsService) {
     this._pool = new Pool();
     this._songsService = songsService;
+    this._collaborationsService = collaborationsService;
   }
 
   async addPlaylist({ name, owner }) {
@@ -25,13 +26,15 @@ class PlaylistsService {
     return result.rows[0].id;
   }
 
-  async getPlaylist(owner) {
+  async getPlaylists(owner) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username
-      FROM playlists 
-      LEFT JOIN users 
-      ON users.id=playlists.owner 
-      WHERE playlists.owner=$1`,
+      FROM playlists
+      LEFT JOIN collaborations
+      ON playlists.id=collaborations.playlist_id
+      RIGHT JOIN users
+      ON playlists.owner=users.id
+      WHERE collaborations.user_id=$1 OR playlists.owner=$1`,
       values: [owner],
     };
     const result = await this._pool.query(query);
@@ -127,6 +130,22 @@ class PlaylistsService {
     const result = await this._pool.query(query);
     if (!result.rowCount) {
       throw new NotFoundError('Gagal menghapus song pada playlist');
+    }
+  }
+
+  async verifyPlaylistSongAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+
+      try {
+        await this._collaborationsService.verifyPlaylistCollaborator(playlistId, userId);
+      } catch {
+        throw error;
+      }
     }
   }
 }
