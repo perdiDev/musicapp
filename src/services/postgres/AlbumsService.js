@@ -72,6 +72,14 @@ class AlbumService {
 
     return result.rows;
   }
+
+  async postAlbumCoverById(id, coverUrl) {
+    const query = {
+      text: 'UPDATE albums SET cover=$1 WHERE id=$2',
+      values: [coverUrl, id],
+    };
+    await this._pool.query(query);
+  }
 }
 
 module.exports = AlbumService;
