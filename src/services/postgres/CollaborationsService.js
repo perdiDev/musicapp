@@ -1,6 +1,6 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
-const InvariantError = require('../../../temp/src/exceptions/InvariantError');
+const InvariantError = require('../../exceptions/InvariantError');
 
 class CollaborationsService {
   constructor(userService) {
