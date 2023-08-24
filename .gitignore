@@ -2,3 +2,4 @@
 .env
 .prod.env
 /temp
+/src/api/albums/file/images

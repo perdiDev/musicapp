@@ -1,7 +1,5 @@
 /* eslint-disable camelcase */
 
-exports.shorthands = undefined;
-
 exports.up = (pgm) => {
   pgm.sql("CREATE TYPE activity_action AS ENUM ('add', 'delete')");
 
