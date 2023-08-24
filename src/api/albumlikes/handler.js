@@ -1,8 +1,9 @@
 const autoBind = require('auto-bind');
 
 class AlbumLikesHandler {
-  constructor(service) {
+  constructor(service, albumsService) {
     this._service = service;
+    this._albumsService = albumsService;
 
     autoBind(this);
   }
@@ -11,6 +12,7 @@ class AlbumLikesHandler {
     const { id } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
+    await this._albumsService.getAlbumById(id);
     await this._service.checkAlbumLikes(id, credentialId);
     await this._service.addAlbumLikes(id, credentialId);
 
@@ -24,7 +26,7 @@ class AlbumLikesHandler {
 
   async deleteAlbumLikesByAlbumIdHandler(request) {
     const { id } = request.params;
-    const { id: credentialId } = request.auth.params;
+    const { id: credentialId } = request.auth.credentials;
 
     await this._service.deleteAlbumLikes(id, credentialId);
 
@@ -34,16 +36,20 @@ class AlbumLikesHandler {
     };
   }
 
-  async getAlbumLikesByAlbumIdHandler(request) {
+  async getAlbumLikesByAlbumIdHandler(request, h) {
     const { id } = request.params;
-    const likes = await this._service.getAlbumLikes(id);
+    const [likes, cache] = await this._service.getAlbumLikes(id);
 
-    return {
+    const response = h.response({
       status: 'success',
       data: {
-        likes,
+        likes: parseInt(likes, 10),
       },
-    };
+    });
+    if (cache) {
+      response.header('X-Data-Source', 'cache');
+    }
+    return response;
   }
 }
 
